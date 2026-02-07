@@ -1,285 +1,93 @@
-import React, { useState } from 'react';
-import {
-User,
-MessageSquare,
-AlertCircle,
-CheckCircle,
-Truck,
-Store,
-CornerUpLeft,
-Play,
-UserX,
-UserCheck,
-ChevronRight,
-Star,
-DollarSign,
-TrendingUp,
-Award
-} from 'lucide-react';
-
-const App = () => {
-const [step, setStep] = useState('intro'); // intro, scenario, feedback, final
-const [currentLevel, setCurrentLevel] = useState(0);
-const [score, setScore] = useState(0);
-const [lastChoiceCorrect, setLastChoiceCorrect] = useState(false);
-
-// Colores corporativos GEPP
-const colors = {
-pepsiBlue: '#004B93',
-pepsiRed: '#C9002B',
-geppWhite: '#FFFFFF',
-successGreen: '#009639',
-gold: '#FFD700'
-};
-
-const scenarios = [
-{
-title: "ESCENARIO 1: El Pedido Fantasma",
-icon: <MessageSquare className="text-blue-600" />,
-situation: "¡Oye! ¡Yo no pedí estas 10 cajas! No sé quién tomó el pedido, pero llévatelas ahora mismo, ¡no quiero nada!",
-choices: [
-{
-text: "Defensivo: 'Pues aquí en mi hoja dice que sí. Yo ya las bajé y no las voy a subir. Reclame a la oficina.'",
-correct: false,
-feedback: "ERROR: Discutir con el cliente o culpar a la oficina destruye la confianza. Nunca le digas que está equivocado."
-},
-{
-text: "Profesional: 'Tiene razón en molestarse, jefe. Pudo haber un error de sistema. ¿Qué le parece si solo dejamos lo que más venda para que no se quede sin producto?'",
-correct: true,
-feedback: "¡EXCELENTE! Validaste su molestia y abriste la puerta a una negociación inteligente."
-}
+import streamlit as st
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(
+   page_title="GEPP - Simulador de Ruta",
+   page_icon="🚛",
+   layout="centered"
+)
+# --- ESTILOS PERSONALIZADOS (BRANDING GEPP/PEPSI) ---
+st.markdown("""
+<style>
+   :root {
+       --pepsi-blue: #004B93;
+       --pepsi-red: #C9002B;
+   }
+   .stApp { background-color: #f8f9fa; }
+   .gepp-header {
+       background: linear-gradient(90deg, #004B93 0%, #002d5a 100%);
+       padding: 2rem;
+       border-radius: 15px;
+       color: white;
+       text-align: center;
+       margin-bottom: 2rem;
+       border-bottom: 6px solid #C9002B;
+   }
+   .stButton>button {
+       width: 100%;
+       border-radius: 12px;
+       padding: 1rem;
+       font-weight: bold;
+   }
+   .correct-card {
+       background-color: #d4edda;
+       padding: 20px;
+       border-radius: 10px;
+       border-left: 8px solid #28a745;
+       color: #155724;
+   }
+   .wrong-card {
+       background-color: #f8d7da;
+       padding: 20px;
+       border-radius: 10px;
+       border-left: 8px solid #C9002B;
+       color: #721c24;
+   }
+</style>
+   """, unsafe_allow_html=True)
+# --- INICIALIZACIÓN DE ESTADO ---
+if 'paso' not in st.session_state:
+   st.session_state.paso = 'INICIO'
+if 'puntaje' not in st.session_state:
+   st.session_state.puntaje = 0
+if 'escenario_actual' not in st.session_state:
+   st.session_state.escenario_actual = 0
+# --- ESCENARIOS ---
+ESCENARIOS = [
+   {
+       "titulo": "Escenario 1: El Pedido No Reconocido",
+       "situacion": "El cliente dice: '¡Yo no pedí estas 10 cajas! No las quiero.'",
+       "opciones": [
+           {"texto": "⚠️ 'Pues aquí dice que sí. Reclame a la oficina.'", "es_correcta": False, "feedback": "¡ERROR! Culpar al sistema daña la relación."},
+           {"texto": "✅ 'Entiendo el malentendido, jefe. ¿Qué le parece si dejamos solo lo básico?'", "es_correcta": True, "feedback": "¡EXCELENTE! Usaste empatía y negociación."}
+       ]
+   }
 ]
-},
-{
-title: "ESCENARIO 2: Objeción de Dinero",
-icon: <DollarSign className="text-green-600" />,
-situation: "No bajes nada, joven. Hoy no tengo dinero y la tienda ha estado muy sola. Venga la próxima semana.",
-choices: [
-{
-text: "Rendirse: 'Está bien, patrón. Si no hay lana, no hay producto. Nos vemos el jueves entonces.'",
-correct: false,
-feedback: "DÉBIL: Perdiste una oportunidad de venta. El 'No' es solo el inicio de la negociación."
-},
-{
-text: "Venta Sugestiva: 'Entiendo, la cosa está lenta. Pero viene el calor el viernes; ¿Le dejo solo 2 cajitas de Pepsi 600ml y agua Epura para que no pierda a esos clientes?'",
-correct: true,
-feedback: "¡BIEN HECHO! Aplicaste la técnica del 'Mínimo Indispensable' para salvar la ruta."
-}
-]
-},
-{
-title: "ESCENARIO 3: Gestión del Rechazo Final",
-icon: <TrendingUp className="text-orange-600" />,
-situation: "De plano hoy no ocupo nada, ya surtí con la competencia y tengo la bodega llena. ¡Gracias!",
-choices: [
-{
-text: "Grosero: (Haces una mueca, azotas la puerta del camión y te vas sin decir nada).",
-correct: false,
-feedback: "PÉSIMO: Tu lenguaje no verbal es grosero. Esto cierra la puerta para que el cliente te compre en el futuro."
-},
-{
-text: "Servicio Plus: 'No se preocupe, jefa. Déjeme nada más acomodarle su refri para que el producto luzca más y se venda rápido. ¡Nos vemos el jueves!'",
-correct: true,
-feedback: "¡MAESTRO! Diste un servicio extra (merchandising) incluso sin venta. Eso garantiza que te compren la próxima vez."
-}
-]
-}
-];
-
-const handleChoice = (isCorrect) => {
-setLastChoiceCorrect(isCorrect);
-if (isCorrect) setScore(score + 1);
-setStep('feedback');
-};
-
-const nextStep = () => {
-if (currentLevel < scenarios.length - 1) {
-setCurrentLevel(currentLevel + 1);
-setStep('scenario');
-} else {
-setStep('final');
-}
-};
-
-const reset = () => {
-setStep('intro');
-setCurrentLevel(0);
-setScore(0);
-};
-
-return (
-<div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-{/* Header Corporativo */}
-<header className="p-4 shadow-lg flex justify-between items-center text-white" style={{ backgroundColor: colors.pepsiBlue }}>
-<div className="flex items-center gap-2">
-<Truck size={28} />
-<div>
-<h1 className="font-bold text-sm uppercase tracking-tighter leading-none">Ruta de Excelencia</h1>
-<p className="text-[10px] opacity-80 uppercase font-bold tracking-widest">Agente GEPP</p>
-</div>
-</div>
-<div className="flex gap-2 items-center bg-white/10 px-3 py-1 rounded-full border border-white/20">
-<Star size={16} className="text-yellow-400 fill-yellow-400" />
-<span className="font-bold text-sm">{score * 100} PTS</span>
-</div>
-</header>
-
-{/* Progress Bar */}
-{step !== 'intro' && step !== 'final' && (
-<div className="w-full h-1.5 bg-gray-200 flex">
-{scenarios.map((_, i) => (
-<div
-key={i}
-className={`flex-grow transition-all duration-500 ${i <= currentLevel ? 'bg-red-600' : 'bg-transparent'}`}
-/>
-))}
-</div>
-)}
-
-<main className="flex-grow flex flex-col items-center justify-center p-6 max-w-lg mx-auto w-full">
-
-{/* PANTALLA: INTRODUCCIÓN */}
-{step === 'intro' && (
-<div className="bg-white p-10 rounded-3xl shadow-2xl w-full text-center border-b-8 border-blue-800 animate-in fade-in zoom-in duration-500">
-<div className="w-32 h-32 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-8 relative">
-<div className="absolute inset-0 rounded-full border-4 border-dashed border-blue-200 animate-spin-slow"></div>
-<Play size={50} className="text-blue-800 ml-2" />
-</div>
-<h2 className="text-3xl font-black mb-4 text-slate-800 leading-tight uppercase">Entrenamiento de Ruta GEPP</h2>
-<p className="text-slate-600 mb-10 text-lg leading-relaxed">
-Enfrenta 3 retos reales de nuestra ruta. <br/>¿Serás un <strong>repartidor común</strong> o un <strong>Agente GEPP</strong>?
-</p>
-<button
-onClick={() => setStep('scenario')}
-className="w-full py-5 rounded-2xl font-black text-xl text-white shadow-xl hover:brightness-110 active:scale-95 transition-all uppercase tracking-wider"
-style={{ backgroundColor: colors.pepsiBlue }}
->
-Iniciar Desafío
-</button>
-</div>
-)}
-
-{/* PANTALLA: ESCENARIO */}
-{step === 'scenario' && (
-<div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
-<div className="bg-white p-6 rounded-3xl shadow-xl">
-<div className="flex items-center gap-3 mb-6">
-<div className="p-3 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm">
-{scenarios[currentLevel].icon}
-</div>
-<h3 className="font-black text-slate-800 uppercase text-sm tracking-tight">
-{scenarios[currentLevel].title}
-</h3>
-</div>
-
-<div className="bg-slate-900 p-6 rounded-2xl shadow-inner relative overflow-hidden">
-<div className="absolute top-0 right-0 p-2 opacity-10">
-<MessageSquare size={100} />
-</div>
-<p className="text-xl text-white italic font-medium relative z-10 leading-snug">
-"{scenarios[currentLevel].situation}"
-</p>
-</div>
-</div>
-
-<p className="text-center text-slate-400 font-bold text-xs uppercase tracking-widest">¿Cómo respondes?</p>
-
-<div className="grid grid-cols-1 gap-4">
-{scenarios[currentLevel].choices.map((choice, idx) => (
-<button
-key={idx}
-onClick={() => handleChoice(choice.correct)}
-className="group p-5 bg-white border-2 border-slate-100 rounded-2xl text-left hover:border-blue-500 hover:shadow-lg active:scale-95 transition-all flex items-start gap-4"
->
-<div className="mt-1 h-6 w-6 rounded-full border-2 border-slate-300 group-hover:border-blue-500 flex items-center justify-center flex-shrink-0">
-<div className="h-2 w-2 rounded-full bg-transparent group-hover:bg-blue-500"></div>
-</div>
-<span className="text-slate-700 font-semibold text-lg leading-tight">{choice.text}</span>
-</button>
-))}
-</div>
-</div>
-)}
-
-{/* PANTALLA: FEEDBACK */}
-{step === 'feedback' && (
-<div className={`bg-white p-10 rounded-3xl shadow-2xl w-full text-center border-t-8 animate-in zoom-in duration-300 ${lastChoiceCorrect ? 'border-green-600' : 'border-red-600'}`}>
-<div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 ${lastChoiceCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-{lastChoiceCorrect ? <CheckCircle size={54} /> : <AlertCircle size={54} />}
-</div>
-
-<h2 className={`text-2xl font-black mb-4 ${lastChoiceCorrect ? 'text-green-700' : 'text-red-700'}`}>
-{lastChoiceCorrect ? '¡MOVIMIENTO MAESTRO!' : 'TEN CUIDADO...'}
-</h2>
-
-<div className={`p-6 rounded-2xl mb-10 text-left leading-relaxed ${lastChoiceCorrect ? 'bg-green-50 text-green-900' : 'bg-red-50 text-red-900'}`}>
-<p className="font-bold mb-2">Por qué esto importa:</p>
-<p className="text-sm">
-{scenarios[currentLevel].choices.find(c => c.correct === lastChoiceCorrect).feedback}
-</p>
-</div>
-
-<button
-onClick={nextStep}
-className="w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-3 shadow-lg uppercase tracking-widest"
-style={{ backgroundColor: colors.pepsiBlue }}
->
-{currentLevel < scenarios.length - 1 ? 'Siguiente Reto' : 'Ver Resultados'} <ChevronRight size={20} />
-</button>
-</div>
-)}
-
-{/* PANTALLA: FINAL */}
-{step === 'final' && (
-<div className="bg-white p-10 rounded-3xl shadow-2xl w-full text-center animate-in slide-in-from-bottom duration-700 border-b-8 border-yellow-500">
-<div className="mb-6">
-<Award size={80} className="mx-auto text-yellow-500 mb-2" />
-<h2 className="text-3xl font-black text-slate-800">RESULTADO DE RUTA</h2>
-</div>
-
-<div className="flex justify-around mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-<div>
-<p className="text-slate-400 text-[10px] font-bold uppercase">Puntaje</p>
-<p className="text-4xl font-black text-blue-800">{score * 100}</p>
-</div>
-<div className="border-l border-slate-200"></div>
-<div>
-<p className="text-slate-400 text-[10px] font-bold uppercase">Categoría</p>
-<p className="text-lg font-black text-red-600 uppercase">
-{score === 3 ? 'Leyenda GEPP' : score === 2 ? 'Profesional' : 'En Formación'}
-</p>
-</div>
-</div>
-
-<p className="text-slate-600 mb-8 italic">
-{score === 3
-? "¡Excelente! Eres un ejemplo de servicio, venta y actitud. Sigue así, Agente GEPP."
-: "Buen esfuerzo, pero recuerda que cada 'No' del cliente es una oportunidad para servir mejor."}
-</p>
-
-<button
-onClick={reset}
-className="w-full py-5 rounded-2xl font-black text-white shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
-style={{ backgroundColor: colors.pepsiBlue }}
->
-<CornerUpLeft size={20} /> Reiniciar Clínica
-</button>
-</div>
-)}
-
-</main>
-
-{/* Footer Inspirador */}
-<footer className="p-6 text-center">
-<div className="flex justify-center gap-4 opacity-30 mb-2 grayscale">
-<img src="https://urldefense.com/v3/__https://placehold.co/40x40/004B93/FFFFFF?text=P__;!!C6V_zP2vTbif5Sxyh5cnbQ!IRDoX0BAC_KGKgyOQMrW9biYwhP5Ja5nH63zVzRMJ2H3c8aPmipukVCEDngQ3noK88fA4eBIrxxd8MbaPO8fTvGpm-5INT8$ " alt="Pepsi" className="rounded-full" />
-<img src="https://urldefense.com/v3/__https://placehold.co/40x40/009639/FFFFFF?text=7__;!!C6V_zP2vTbif5Sxyh5cnbQ!IRDoX0BAC_KGKgyOQMrW9biYwhP5Ja5nH63zVzRMJ2H3c8aPmipukVCEDngQ3noK88fA4eBIrxxd8MbaPO8fTvGpo2ASNwY$ " alt="7up" className="rounded-full" />
-<img src="https://urldefense.com/v3/__https://placehold.co/40x40/FF6319/FFFFFF?text=G__;!!C6V_zP2vTbif5Sxyh5cnbQ!IRDoX0BAC_KGKgyOQMrW9biYwhP5Ja5nH63zVzRMJ2H3c8aPmipukVCEDngQ3noK88fA4eBIrxxd8MbaPO8fTvGphtRXc7E$ " alt="Gatorade" className="rounded-full" />
-</div>
-<p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em]">GEPP • Compromiso • Pasión • Servicio</p>
-</footer>
-</div>
-);
-};
-
-export default App;
+# --- LÓGICA ---
+def procesar_respuesta(es_correcta, feedback):
+   if es_correcta:
+       st.session_state.puntaje += 1
+   st.session_state.feedback_actual = feedback
+   st.session_state.es_correcta_actual = es_correcta
+   st.session_state.paso = 'FEEDBACK'
+# --- INTERFAZ ---
+st.markdown('<div class="gepp-header"><h1>GEPP: RUTA DE EXCELENCIA</h1></div>', unsafe_allow_html=True)
+if st.session_state.paso == 'INICIO':
+   st.subheader("🚀 Bienvenido al Desafío")
+   if st.button("COMENZAR ENTRENAMIENTO"):
+       st.session_state.paso = 'SIMULADOR'
+       st.rerun()
+elif st.session_state.paso == 'SIMULADOR':
+   esc = ESCENARIOS[st.session_state.escenario_actual]
+   st.info(f"🗨️ **SITUACIÓN:** {esc['situacion']}")
+   for opcion in esc["opciones"]:
+       if st.button(opcion["texto"]):
+           procesar_respuesta(opcion["es_correcta"], opcion["feedback"])
+           st.rerun()
+elif st.session_state.paso == 'FEEDBACK':
+   if st.session_state.es_correcta_actual:
+       st.success(st.session_state.feedback_actual)
+   else:
+       st.error(st.session_state.feedback_actual)
+   if st.button("REINICIAR"):
+       st.session_state.paso = 'INICIO'
+       st.rerun()
