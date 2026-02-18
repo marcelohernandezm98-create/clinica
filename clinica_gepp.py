@@ -210,7 +210,7 @@ elif st.session_state.paso == 'REPORTE':
         <div style="text-align:center;">
             <p style="font-size: 11px; font-style: italic;">Validado por el sistema de entrenamiento SAC GEPP</p>
             <br>
-            st.info("Servicio no es solo entregar el producto, es dar confianza,respeto y soluciones")
+            style="color:#004B93 Servicio no es solo entregar el producto, es dar confianza,respeto y soluciones"
                 <br>
                 <strong>MARCELO HERNÁNDEZ MONTALVO</strong><br>
                 Jefe SAC Entrega Embotellado
@@ -231,4 +231,5 @@ with st.sidebar:
     st.title("PLANTA VERACRUZ EMBOTELLADO")
     st.divider()
     st.info("Este simulador elige 4 escenarios aleatorios de un banco de 24 situaciones operativas.")
+
 
