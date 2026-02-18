@@ -88,7 +88,7 @@ BANCO_DATOS = [
         "cat": "Jarritos",
         "situacion": "El cliente reclama: 'Yo pedí puro de Mandarina y me traes de Tamarindo y Ponche. No los quiero.'",
         "excelente": "'Una disculpa por el error en los sabores, jefe. Déjeme ver si traigo Mandarina extra en la unidad para ajustarlo. Si no, ¿le parece si le dejo estos sabores y les damos prioridad en el enfriador para que roten rápido?'",
-        "regular": "'Es lo que capturó el sistema, jefe. Tómelo así por esta vez y a la otra le pido al preventista que tenga más cuidado con sus sabores.'",
+        "regular": "'Es lo que capturó el sistema, jefe. Tómelo así por esta vez y para la siguiente visita se los cambiamos.'",
         "mala": "'Es lo que hay en existencia. Si no los quiere los regreso, pero se va a quedar sin la promoción de Jarritos.'",
         "fb": "Negociar el inventario disponible o buscar soluciones en el camión demuestra actitud de servicio."
     },
@@ -255,3 +255,4 @@ with st.sidebar:
     st.divider()
     st.write(f"Evaluando a: **{st.session_state.get('nombre', 'Pendiente')}**")
     st.info("Esta sesión consta de 4 escenarios aleatorios.")
+
