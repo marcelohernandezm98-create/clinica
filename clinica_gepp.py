@@ -210,7 +210,7 @@ elif st.session_state.paso == 'REPORTE':
         <div style="text-align:center;">
             <p style="font-size: 11px; font-style: italic;">Validado por el sistema de entrenamiento SAC GEPP</p>
             <br>
-            <strong>Servicio no es solo entregar el producto, es dar confianza,respeto y soluciones</strong><br>
+            st.info("Servicio no es solo entregar el producto, es dar confianza,respeto y soluciones")
                 <br>
                 <strong>MARCELO HERNÁNDEZ MONTALVO</strong><br>
                 Jefe SAC Entrega Embotellado
