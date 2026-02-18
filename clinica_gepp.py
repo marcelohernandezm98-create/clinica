@@ -210,7 +210,7 @@ elif st.session_state.paso == 'REPORTE':
         <div style="text-align:center;">
             <p style="font-size: 11px; font-style: italic;">Validado por el sistema de entrenamiento SAC GEPP</p>
             <br>
-            <div class="signature-box">
+            <strong>Servicio no es solo entregar el producto, es dar confianza,respeto y soluciones</strong><br>
                 <br>
                 <strong>MARCELO HERNÁNDEZ MONTALVO</strong><br>
                 Jefe SAC Entrega Embotellado
@@ -228,6 +228,7 @@ elif st.session_state.paso == 'REPORTE':
 # --- BARRA LATERAL ---
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Pepsi_logo_2014.svg/1200px-Pepsi_logo_2014.svg.png", width=100)
-    st.title("Centro SAC GEPP")
+    st.title("PLANTA VERACRUZ EMBOTELLADO")
     st.divider()
     st.info("Este simulador elige 4 escenarios aleatorios de un banco de 24 situaciones operativas.")
+
